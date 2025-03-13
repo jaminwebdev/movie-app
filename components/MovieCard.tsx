@@ -30,15 +30,15 @@ const MovieCard = ({
         <View className="flex-row items-center justify-start gap-x-1">
           <Image source={icons.star} className="size-4" />
           <Text className="text-xs text-white font-bold uppercase">
-            {Math.round(vote_average / 2)}
+            {vote_average.toFixed(1)}
           </Text>
         </View>
 
-        <View className="flex-row items-center justify-between">
-          <Text className="text-xs text-light-300 font-medium mt-1">
+        <View className="flex-row items-center justify-between pr-2">
+          <Text className="text-xs text-slate-500 font-medium mt-1">
             {release_date?.split("-")[0]}
           </Text>
-          <Text className="text-xs font-medium text-light-300 uppercase">
+          <Text className="text-xs font-medium text-slate-500 uppercase">
             Movie
           </Text>
         </View>
