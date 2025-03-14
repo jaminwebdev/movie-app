@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { View, Text, ActivityIndicator, FlatList, Image } from "react-native";
 
 import { images } from "@/constants/images";
@@ -14,6 +14,7 @@ import MovieDisplayCard from "@/components/MovieCard";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const timeoutRef = useRef<NodeJS.Timeout>();
 
   const {
     data: movies = [],
@@ -23,27 +24,36 @@ const Search = () => {
     reset,
   } = useFetch(() => getMovies({ query: searchQuery }), false);
 
-  const handleSearch = (text: string) => {
+  const handleSearch = async (text: string) => {
     setSearchQuery(text);
-  };
 
-  // Debounced search effect
-  useEffect(() => {
-    const timeoutId = setTimeout(async () => {
-      if (searchQuery.trim()) {
-        await loadMovies();
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
 
-        // Call updateSearchMetrics only if there are results
-        if (movies?.length! > 0 && movies?.[0]) {
-          await updateSearchMetrics(searchQuery, movies[0]);
+    timeoutRef.current = setTimeout(async () => {
+      if (text.trim()) {
+        const results = await loadMovies();
+
+        if (results?.length > 0 && results[0]) {
+          console.log(text)
+          console.log(results[0])
+          await updateSearchMetrics(text, results[0]);
         }
       } else {
         reset();
       }
-    }, 500);
+    }, 700);
+  };
 
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+  // Clean up timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <View className="flex-1 bg-primary">
