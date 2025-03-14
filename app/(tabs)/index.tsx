@@ -1,30 +1,48 @@
 import React from "react";
 import { View, Image, ScrollView, ActivityIndicator, Text, FlatList } from "react-native";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter, useFocusEffect } from "expo-router";
+
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
-import SearchBar from "@/components/SearchBar";
-import { useRouter } from "expo-router";
-import useFetch from "@/services/useFetch";
 import { getMovies } from "@/services/api";
-import MovieCard from "@/components/MovieCard";
 import { getTrendingMovies } from "@/services/supabase";
+
+import SearchBar from "@/components/SearchBar";
+import MovieCard from "@/components/MovieCard";
 import TrendingCard from "@/components/TrendingCard";
 
 export default function Index() {
-
   const router = useRouter();
-  
-  const {
-    data: trendingMovies,
-    loading: trendingLoading,
-    error: trendingError
-  } = useFetch(getTrendingMovies)
 
-  const { 
-    data: movies,
-    loading: moviesLoading,
-    error: moviesError 
-  } = useFetch(() => getMovies({ query: ''}))
+  const {
+    data: trendingMovies = [],
+    isLoading: trendingLoading,
+    isError: trendingHasError,
+    error: trendingError,
+    refetch: refetchTrending
+  } = useQuery({
+    queryKey: ['trending'],
+    queryFn: getTrendingMovies,
+    staleTime: 0, // Consider data stale immediately
+  });
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refetchTrending();
+    }, [refetchTrending])
+  );
+
+  const {
+    data: movies = [],
+    isLoading: moviesLoading,
+    isError: moviesHasError,
+    error: moviesError
+  } = useQuery({
+    queryKey: ['latest'],
+    queryFn: () => getMovies({ query: '' }),
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
 
   const renderTrendingMovies = () => {
     return (
@@ -47,16 +65,16 @@ export default function Index() {
           ItemSeparatorComponent={() => <View className="w-4" />}
         />
       </View>
-    )
-  }
-  
+    );
+  };
+
   const maybeRenderMovies = () => {
-    if (moviesLoading || trendingLoading) { 
-      return <ActivityIndicator size='large' color='#0000ff' className="mt-10 self-center"/>
+    if (moviesLoading || trendingLoading) {
+      return <ActivityIndicator size="large" color="#0000ff" className="mt-10 self-center" />;
     }
 
-    if (moviesError || trendingError) {
-      return <Text>Error: {moviesError?.message || trendingError?.message}</Text>
+    if ((moviesHasError && moviesError instanceof Error) || (trendingHasError && trendingError instanceof Error)) {
+      return <Text className="text-red-500">Error: {(moviesError as Error)?.message || (trendingError as Error)?.message}</Text>;
     }
 
     return (
@@ -68,28 +86,28 @@ export default function Index() {
           placeholder="Search for a movie"
         />
 
-        {trendingMovies?.length ? renderTrendingMovies() : ''}
+        {trendingMovies?.length > 0 ? renderTrendingMovies() : ''}
 
         <>
           <Text className="text-lg text-white font-bold m-5">Latest Movies</Text>
 
           <FlatList
-              data={movies}
-              renderItem={({ item }) => <MovieCard {...item} />}
-              keyExtractor={(item) => item.id.toString()}
-              numColumns={3}
-              columnWrapperStyle={{
-                justifyContent: "flex-start",
-                gap: 20,
-                marginBottom: 15,
-              }}
-              className="mt-2 pb-32"
-              scrollEnabled={false}
-            />
+            data={movies}
+            renderItem={({ item }) => <MovieCard {...item} />}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={3}
+            columnWrapperStyle={{
+              justifyContent: "flex-start",
+              gap: 20,
+              marginBottom: 15,
+            }}
+            className="mt-2 pb-32"
+            scrollEnabled={false}
+          />
         </>
       </View>
-    )
-  }
+    );
+  };
 
   return (
     <View className="flex-1 bg-primary">
