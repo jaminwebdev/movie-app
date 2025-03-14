@@ -7,7 +7,7 @@ import { icons } from "@/constants/icons";
 
 import useFetch from "@/services/useFetch";
 import { getMovies } from "@/services/api";
-import { updateSearchCount } from "@/services/appwrite";
+import { updateSearchMetrics } from "@/services/supabase";
 
 import SearchBar from "@/components/SearchBar";
 import MovieDisplayCard from "@/components/MovieCard";
@@ -33,9 +33,9 @@ const Search = () => {
       if (searchQuery.trim()) {
         await loadMovies();
 
-        // Call updateSearchCount only if there are results
+        // Call updateSearchMetrics only if there are results
         if (movies?.length! > 0 && movies?.[0]) {
-          await updateSearchCount(searchQuery, movies[0]);
+          await updateSearchMetrics(searchQuery, movies[0]);
         }
       } else {
         reset();
