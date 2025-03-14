@@ -7,24 +7,56 @@ import { useRouter } from "expo-router";
 import useFetch from "@/services/useFetch";
 import { getMovies } from "@/services/api";
 import MovieCard from "@/components/MovieCard";
+import { getTrendingMovies } from "@/services/supabase";
+import TrendingCard from "@/components/TrendingCard";
 
 export default function Index() {
 
   const router = useRouter();
+  
+  const {
+    data: trendingMovies,
+    loading: trendingLoading,
+    error: trendingError
+  } = useFetch(getTrendingMovies)
 
   const { 
     data: movies,
     loading: moviesLoading,
     error: moviesError 
   } = useFetch(() => getMovies({ query: ''}))
+
+  const renderTrendingMovies = () => {
+    return (
+      <View className="mt-10">
+        <Text className="text-lg text-white font-bold mb-3">
+          Trending Movies
+        </Text>
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="mb-4 mt-3"
+          data={trendingMovies}
+          contentContainerStyle={{
+            gap: 26,
+          }}
+          renderItem={({ item, index }) => (
+            <TrendingCard movie={item} index={index} />
+          )}
+          keyExtractor={(item) => item.movie_id.toString()}
+          ItemSeparatorComponent={() => <View className="w-4" />}
+        />
+      </View>
+    )
+  }
   
   const maybeRenderMovies = () => {
-    if (moviesLoading) { 
+    if (moviesLoading || trendingLoading) { 
       return <ActivityIndicator size='large' color='#0000ff' className="mt-10 self-center"/>
     }
 
-    if (moviesError) {
-      return <Text>Error: {moviesError?.message}</Text>
+    if (moviesError || trendingError) {
+      return <Text>Error: {moviesError?.message || trendingError?.message}</Text>
     }
 
     return (
@@ -35,6 +67,9 @@ export default function Index() {
           }}
           placeholder="Search for a movie"
         />
+
+        {trendingMovies?.length ? renderTrendingMovies() : ''}
+
         <>
           <Text className="text-lg text-white font-bold m-5">Latest Movies</Text>
 

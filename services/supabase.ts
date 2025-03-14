@@ -10,7 +10,7 @@ export const updateSearchMetrics = async (query: string, movie: Movie) => {
   try {
     const { data: existingMetric } = await supabase
       .from('movieApp_metrics')
-      .select()
+      .select('*')
       .eq('searchTerm', query)
       .single()
 
@@ -39,3 +39,23 @@ export const updateSearchMetrics = async (query: string, movie: Movie) => {
     throw error
   }
 }
+
+export const getTrendingMovies = async (): Promise<
+  TrendingMovie[] | undefined
+> => {
+  try {
+
+    const { data: result, error } = await supabase
+    .from('movieApp_metrics')
+    .select()
+    .order('count', { ascending: false })
+    .limit(5)
+
+    if (error) throw error
+
+    return result as unknown as TrendingMovie[];
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
+};
