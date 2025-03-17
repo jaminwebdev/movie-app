@@ -1,11 +1,16 @@
-import { View, Text } from 'react-native'
+import { Text } from 'react-native'
 import React from 'react'
+import { useUser } from '../../context/UserContext'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const Saved = () => {
+  
+  const { userId } = useUser()
+
   return (
-    <View>
-      <Text>Saved</Text>
-    </View>
+    <SafeAreaView>
+      <Text>{userId}</Text>
+    </SafeAreaView>
   )
 }
 
