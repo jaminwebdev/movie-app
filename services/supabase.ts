@@ -26,10 +26,10 @@ export const updateSearchMetrics = async (query: string, movie: Movie) => {
         .from('movieApp_metrics')
         .insert({
           searchTerm: query,
-          movie_id: movie.id,
+          id: movie.id,
           title: movie.title,
           count: 1,
-          poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          poster_path: `https://image.tmdb.org/t/p/w500${movie.poster_path}`
         })
 
       if (error) throw error
@@ -65,7 +65,7 @@ export const saveMovie = async (movie: MovieDetails, userId: string) => {
     const { data: savedMovie } = await supabase
       .from('movieApp_saved')
       .select('*')
-      .eq('movie_id', movie.id)
+      .eq('id', movie.id)
       .eq('user_id', userId)
       .single()
 
@@ -73,7 +73,7 @@ export const saveMovie = async (movie: MovieDetails, userId: string) => {
       const { error } = await supabase
         .from('movieApp_saved')
         .delete()
-        .eq('movie_id', movie.id)
+        .eq('id', movie.id)
         .eq('user_id', userId)
 
       if (error) throw error
@@ -84,10 +84,10 @@ export const saveMovie = async (movie: MovieDetails, userId: string) => {
         .from('movieApp_saved')
         .insert({
           user_id: userId,
-          movie_id: movie.id,
+          id: movie.id,
           title: movie.title,
           vote_average: movie.vote_average,
-          poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+          poster_path: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
           release_date: movie.release_date
         })
 
@@ -106,7 +106,7 @@ export const getMovieSavedStatus = async (movie: MovieDetails, userId: string) =
     const { data: savedMovie, error } = await supabase
       .from('movieApp_saved')
       .select('*')
-      .eq('movie_id', movie.id)
+      .eq('id', movie.id)
       .eq('user_id', userId)
 
     if (error && error.details !== 'The result contains 0 rows') throw error
@@ -121,7 +121,7 @@ export const getMovieSavedStatus = async (movie: MovieDetails, userId: string) =
   }
 }
 
-export const getSavedMoves = async(userId: string) => {
+export const getSavedMovies = async(userId: string) => {
   try {
     if (!userId) return
 
