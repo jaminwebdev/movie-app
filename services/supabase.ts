@@ -9,23 +9,23 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 export const updateSearchMetrics = async (query: string, movie: Movie) => {
   try {
     const { data: existingMetric } = await supabase
-      .from('movieApp_metrics')
+      .from('movieApp_searchTerms')
       .select('*')
-      .eq('searchTerm', query)
+      .eq('search_term', query)
       .single()
 
     if (existingMetric) {
       const { error } = await supabase
-        .from('movieApp_metrics')
+        .from('movieApp_searchTerms')
         .update({ count: existingMetric.count + 1 })
-        .eq('searchTerm', query)
+        .eq('search_term', query)
 
       if (error) throw error
     } else {
       const { error } = await supabase
-        .from('movieApp_metrics')
+        .from('movieApp_searchTerms')
         .insert({
-          searchTerm: query,
+          search_term: query,
           id: movie.id,
           title: movie.title,
           count: 1,
@@ -46,7 +46,7 @@ export const getTrendingMovies = async (): Promise<
   try {
 
     const { data: result, error } = await supabase
-    .from('movieApp_metrics')
+    .from('movieApp_searchTerms')
     .select()
     .order('count', { ascending: false })
     .limit(5)
