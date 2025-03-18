@@ -2,6 +2,13 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Built with
+- React Native/Expo
+- react-native-reanimated
+- Supabase
+- Tanstack Query
+- Nativewind/tailwind
+
 ## Get started
 
 1. Install dependencies
