@@ -53,7 +53,7 @@ const TrendingMovies = () => {
         renderItem={({ item, index }) => (
           <TrendingCard movie={item} index={index} />
         )}
-        keyExtractor={(item) => item.movie_id.toString()}
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
   );

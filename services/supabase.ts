@@ -12,12 +12,11 @@ export const updateSearchMetrics = async (query: string, movie: Movie) => {
       .from('movieApp_searchTerms')
       .select('*')
       .eq('search_term', query)
-      .single()
 
-    if (existingMetric) {
+    if (existingMetric?.length) {
       const { error } = await supabase
         .from('movieApp_searchTerms')
-        .update({ count: existingMetric.count + 1 })
+        .update({ count: existingMetric[0].count + 1 })
         .eq('search_term', query)
 
       if (error) throw error
@@ -67,9 +66,8 @@ export const saveMovie = async (movie: MovieDetails, userId: string) => {
       .select('*')
       .eq('id', movie.id)
       .eq('user_id', userId)
-      .single()
 
-    if (savedMovie) {
+    if (savedMovie?.length) {
       const { error } = await supabase
         .from('movieApp_saved')
         .delete()
